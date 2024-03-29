@@ -1,12 +1,23 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
+import { loggerLink, unstable_httpBatchStreamLink, httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
+import { Header } from "next/dist/lib/load-custom-routes";
 import { useState } from "react";
 import SuperJSON from "superjson";
 
 import { type AppRouter } from "~/server/api/root";
+
+let token: string;
+export function setToken(newToken: string) {
+  /**
+   * You can also save the token to cookies, and initialize from
+   * cookies above.
+   */
+  token = newToken;
+}
+
 
 const createQueryClient = () => new QueryClient();
 
@@ -20,7 +31,9 @@ const getQueryClient = () => {
   return (clientQueryClientSingleton ??= createQueryClient());
 };
 
-export const api = createTRPCReact<AppRouter>();
+export const api = createTRPCReact<AppRouter>({
+  
+});
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
@@ -33,12 +46,14 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        unstable_httpBatchStreamLink({
+        httpBatchLink({
           transformer: SuperJSON,
           url: getBaseUrl() + "/api/trpc",
           headers: () => {
             const headers = new Headers();
             headers.set("x-trpc-source", "nextjs-react");
+            console.log('jello', )
+            headers.set("Set-cookie", token);
             return headers;
           },
         }),
