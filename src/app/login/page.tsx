@@ -12,9 +12,6 @@ export default function CreatePost() {
 
   const createPost = api.post.login.useMutation({
     onSuccess: (data) => {
-      if(data) {
-        setToken(data.token);
-      }
       router.push('/categories');
       setEmail("");
       setPassword("");

@@ -14,10 +14,6 @@ export function Singup() {
 
   const createPost = api.post.register.useMutation({
     onSuccess: (data) => {
-      if(data) {
-        setToken(data.token);
-      }
-
       router.push('/categories');
       setName("");
       setEmail("");
