@@ -36,7 +36,7 @@ const isAuthed = t.middleware(async ({ctx, next}) =>{
   const cookies = ctx.req.headers.get('cookie')?.split(";");
 
   const ourCookie = cookies?.filter((cookie) => cookie.split("=")[0] === 'token');
-  let token = ourCookie? ourCookie[0]?.split("=")[1] : '';
+  const token = ourCookie? ourCookie[0]?.split("=")[1] : '';
 
   if(token?.length) {
     const payload = await decrypt(token);
