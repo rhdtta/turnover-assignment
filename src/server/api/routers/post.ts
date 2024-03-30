@@ -1,13 +1,9 @@
 
 import { TRPCClientError } from "@trpc/client";
-import { EncryptJWT } from "jose";
-import { cookies } from "next/headers";
 import { z } from "zod";
-import { decrypt, encrypt } from "~/lib/auth";
-import {NextResponse} from 'next/server'
+import { encrypt } from "~/lib/auth";
 
 import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
-// import { myfunc } from "~/trpc/react";
 
 
 export const postRouter = createTRPCRouter({
@@ -28,8 +24,11 @@ export const postRouter = createTRPCRouter({
           id: userCreated.id
         })
 
-        
-        return {token: session}
+        const expirationDate = new Date(Date.now() + 60*60*1000);
+        const cookieString = `token=${session}; Expires=${expirationDate.toUTCString()}`;
+
+        ctx.resHeaders.set('Set-Cookie', cookieString);
+        return '';
       }
     }),
 
@@ -39,16 +38,19 @@ export const postRouter = createTRPCRouter({
       const user =  await ctx.db.users.findUnique({
         where: { email: input.email }
       });
-      console.log('controle here')
+
       if(user) {
         if(input.password === user.password) {
           const session = await encrypt({
             id: user.id
           })
-          console.log('controle here 2')
-          return {token: session}
+
+          const expirationDate = new Date(Date.now() + 60*60*1000);
+          const cookieString = `token=${session}; Expires=${expirationDate.toUTCString()}`;
+
+          ctx.resHeaders.set('Set-Cookie', cookieString);
+          return '';
         } else {
-          console.log('controle here 3')
           throw new TRPCClientError('Password incorrect || Email invalid')
         }
       }
@@ -74,11 +76,7 @@ export const postRouter = createTRPCRouter({
           checked: selectedCategories.indexOf(obj.id) != -1 ? true : false
         }
       })
-      
-      // return {
-      //   categories: categories,
-      //   selectedCats: selectedCategories
-      // };
+
       return { result, selected: selectedCategories, totalPages: categories.length/input.perPage+1};
   }),
 
@@ -89,7 +87,6 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const id = ctx.userId
       const { selectedCategories } = input;
-      console.log('id categories', id, selectedCategories)
 
       try {
         const updatedUser = await ctx.db.users.update({
@@ -101,11 +98,8 @@ export const postRouter = createTRPCRouter({
           },
         });
 
-        console.log('updated?', updatedUser)
-
         return updatedUser;
       } catch (error) {
-        console.error("Error updating selected categories:", error);
         throw new Error("Failed to update selected categories");
       }
     }),
