@@ -36,7 +36,11 @@ const config = {
           "attributes": false
         }
       }
-    ]
+    ],
+    "@typescript-eslint/no-unsafe-assignment": "warn", // or "off" if you want to disable it
+    "@typescript-eslint/no-explicit-any": "warn", // or "off" if you want to disable it
+    "@typescript-eslint/no-unsafe-argument": "warn", // or "off" if you want to disable it
+    "@typescript-eslint/no-unsafe-member-access": "warn", // or "off" if you want to disable it
   }
 }
 module.exports = config;

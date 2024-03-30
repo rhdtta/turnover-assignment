@@ -66,8 +66,8 @@ export const postRouter = createTRPCRouter({
       const selectedCategories = user ? user.selectedcategories : [];
       const categories = await ctx.db.categories.findMany();
 
-      let startIndex = 1+(input.page - 1)*input.perPage - 1;
-      let endIndex = input.page < categories.length/input.perPage? startIndex + input.perPage: undefined;
+      const startIndex = 1+(input.page - 1)*input.perPage - 1;
+      const endIndex = input.page < categories.length/input.perPage? startIndex + input.perPage: undefined;
       
       const paginatedCategories = categories.slice(startIndex, endIndex);
       const result =  paginatedCategories.map((obj) => {
